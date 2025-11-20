@@ -27,11 +27,13 @@ async function getPaginatedUserPosts(userId: string, page: number) {
   return { posts, totalPosts };
 }
 
-export default async function DashboardRoute({
-  searchParams,
-}: {
-  searchParams?: { page?: string };
-}) {
+export default async function DashboardRoute(
+  props: {
+    searchParams?: Record<string, string | string[] | undefined>;
+  }
+) {
+  const searchParams = props.searchParams;
+
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
@@ -44,7 +46,6 @@ export default async function DashboardRoute({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
       <div className="flex items-center justify-between mt-2 mb-8">
         <h2 className="text-xl font-medium">Your Blog Articles</h2>
         <Link className={buttonVariants()} href="/dashboard/create">
@@ -54,7 +55,7 @@ export default async function DashboardRoute({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-10">
         {posts.map((item) => (
-          <BlogPostCard data={item} key={item.id}  from="/dashboard"/>
+          <BlogPostCard data={item} key={item.id} from="/dashboard" />
         ))}
       </div>
 
