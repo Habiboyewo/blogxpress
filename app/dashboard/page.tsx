@@ -27,13 +27,11 @@ async function getPaginatedUserPosts(userId: string, page: number) {
   return { posts, totalPosts };
 }
 
-export default async function DashboardRoute(
-  props: {
-    searchParams?: Record<string, string | string[] | undefined>;
-  }
-) {
-  const searchParams = props.searchParams;
-
+export default async function DashboardRoute({
+  searchParams,
+}: {
+  searchParams?: { page?: string };
+}) {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
