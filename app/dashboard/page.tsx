@@ -30,14 +30,15 @@ async function getPaginatedUserPosts(userId: string, page: number) {
 export default async function DashboardRoute({
   searchParams,
 }: {
-  searchParams?: { page?: string };
+  searchParams: Promise<{ page?: string }>;  
 }) {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
   if (!user) redirect("/api/auth/login");
 
-  const page = Number(searchParams?.page) || 1;
+  const resolvedParams = await searchParams;  
+  const page = Number(resolvedParams?.page) || 1;
   const { posts, totalPosts } = await getPaginatedUserPosts(user.id, page);
 
   const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
