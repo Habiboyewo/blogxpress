@@ -1,8 +1,10 @@
+"use client";
+
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function LoadingDashboard() {
+export default function BlogSkeletonGrid() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {Array.from({ length: 6 }).map((_, index) => (
         <div key={index} className="flex flex-col space-y-4">
           <Skeleton className="h-[140px] w-full rounded-lg" />

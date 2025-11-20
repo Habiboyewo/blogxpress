@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getAuthorAvatar } from "@/app/utils/avatar";
+import { Avatar } from "../ui/Avatar";
 
 interface IappProps {
   data: {
@@ -13,11 +15,14 @@ interface IappProps {
     createdAt: Date;
     updatedAt: Date;
   };
+  from?: string;
 }
-export function BlogPostCard({ data }: IappProps) {
+export function BlogPostCard({ data, from = "/" }: IappProps) {
+  const authorAvatar = getAuthorAvatar(data.authorImage);
+
   return (
     <div className="group relative overflow-hidden rounded-lg border-gray-200 bg-white shadow-md transition-all hover:shadow-lg">
-      <Link href={`/post/${data.id}`}>
+      <Link href={`/post/${data.id}?from=${from}`}>
         <div className="relative h-48 w-full overflow-hidden">
           <Image
             src={data.imageUrl}
@@ -37,17 +42,28 @@ export function BlogPostCard({ data }: IappProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="relative size-8 overflow-hidden rounded-full">
-                <Image src={data.authorImage} alt={data.authorName} fill className="object-cover"/>
+                {/* <Image
+                  src={authorAvatar}
+                  alt={data.authorName}
+                  fill
+                  className="object-cover"
+                /> */}
+                <Avatar
+                  src={authorAvatar}
+                  alt={data.authorName || "Anonymous"}
+                />
               </div>
-               <p className="text-sm font-medium text-gray-700 ">
+              <p className="text-sm font-medium text-gray-700 ">
                 {data.authorName}
-               </p>
+              </p>
             </div>
-            <time className="text-xs text-gray-500">{new Intl.DateTimeFormat("en-UK", {
-              year: "numeric",
-              month:"short",
-              day:"numeric"
-            }).format(data.createdAt)}</time>
+            <time className="text-xs text-gray-500">
+              {new Intl.DateTimeFormat("en-UK", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              }).format(data.createdAt)}
+            </time>
           </div>
         </div>
       </Link>
