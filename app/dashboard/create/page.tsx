@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
+import { useActionState } from "react";
+import { useRouter } from "next/navigation";
 import { handleSubmission } from "@/app/actions";
 import { Submitbutton } from "@/components/ui/Submitbutton";
 import {
@@ -18,36 +20,48 @@ import { z } from "zod";
 
 type FormField = "title" | "content" | "file";
 
+
+type ActionState = {
+  success?: boolean;
+  error?: string;
+};
+
 const formSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   content: z.string().min(10, "Content must be at least 10 characters."),
   file: z
-    .instanceof(File, { message: "Image is required." })
-    .refine((f) => f.size > 0, { message: "Image is required." })
-    .refine(
-      (f) => ["image/jpeg", "image/png", "image/webp"].includes(f.type),
-      { message: "Only JPG, PNG, or WebP allowed." }
-    )
-    .refine((f) => f.size <= 5 * 1024 * 1024, { message: "Max image size is 5MB." }),
+    .instanceof(File)
+    .refine((f) => f.size > 0, "Image is required.")
+    .refine((f) => ["image/jpeg", "image/png", "image/webp"].includes(f.type), "Only JPG, PNG, WebP allowed.")
+    .refine((f) => f.size <= 5 * 1024 * 1024, "Max 5MB"),
 });
 
 export default function CreateRoute() {
-  const [errors, setErrors] = useState<Record<FormField, string | undefined>>({
+  const router = useRouter();
+  const [preview, setPreview] = useState<string | null>(null);
+  const [clientErrors, setClientErrors] = useState<Record<FormField, string | undefined>>({
     title: undefined,
     content: undefined,
     file: undefined,
   });
-  const [preview, setPreview] = useState<string | null>(null);
 
-  // field change handler
+  const [state, formAction] = useActionState<ActionState, FormData>(handleSubmission, {});
+
+
+  useEffect(() => {
+    if (state?.success) {
+      router.push("/dashboard");
+      router.refresh();
+    }
+  }, [state, router]);
+
   const handleFieldChange = (field: "title" | "content", value: string) => {
     try {
-      // Validate each field
       formSchema.shape[field].parse(value);
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+      setClientErrors(prev => ({ ...prev, [field]: undefined }));
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setErrors((prev) => ({ ...prev, [field]: err.issues[0].message }));
+        setClientErrors(prev => ({ ...prev, [field]: err.issues[0].message }));
       }
     }
   };
@@ -56,58 +70,21 @@ export default function CreateRoute() {
     const file = e.target.files?.[0];
     if (!file) {
       setPreview(null);
-      setErrors((prev) => ({ ...prev, file: "Image is required." }));
+      setClientErrors(prev => ({ ...prev, file: "Image is required." }));
       return;
     }
 
-    //image Preview
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result as string);
     reader.readAsDataURL(file);
 
-    // Validate immediately
     try {
       formSchema.shape.file.parse(file);
-      setErrors((prev) => ({ ...prev, file: undefined }));
+      setClientErrors(prev => ({ ...prev, file: undefined }));
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setErrors((prev) => ({ ...prev, file: err.issues[0].message }));
+        setClientErrors(prev => ({ ...prev, file: err.issues[0].message }));
       }
-    }
-  };
-
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setErrors({ title: undefined, content: undefined, file: undefined });
-
-    const formData = new FormData(event.currentTarget);
-    const title = formData.get("title") as string;
-    const content = formData.get("content") as string;
-    const file = formData.get("file") as File;
-
-    const parsed = formSchema.safeParse({ title, content, file });
-    if (!parsed.success) {
-      const fieldErrors: Record<FormField, string | undefined> = {
-        title: undefined,
-        content: undefined,
-        file: undefined,
-      };
-      parsed.error.issues.forEach((issue) => {
-        const key = issue.path[0] as FormField;
-        fieldErrors[key] = issue.message;
-      });
-      setErrors(fieldErrors);
-      return;
-    }
-
-    try {
-      await handleSubmission(formData);
-      event.currentTarget.reset();
-      setPreview(null);
-      setErrors({ title: undefined, content: undefined, file: undefined });
-    } catch (err: unknown) {
-      if (err instanceof Error) alert(err.message);
-      else alert("Something went wrong.");
     }
   };
 
@@ -119,55 +96,44 @@ export default function CreateRoute() {
           <CardDescription>Create a new post to share with the world</CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-            {/* Title */}
+          <form action={formAction} className="flex flex-col gap-6">
+          
             <div className="flex flex-col gap-2">
               <Label>Title</Label>
-              <Input
-                name="title"
-                type="text"
-                placeholder="Title"
-                onChange={(e) => handleFieldChange("title", e.target.value)}
-              />
-              {errors.title && (
-                <p className="text-red-500 text-sm">{errors.title}</p>
-              )}
+              <Input name="title" type="text" placeholder="Enter title" onChange={(e) => handleFieldChange("title", e.target.value)} required />
+              {clientErrors.title && <p className="text-red-500 text-sm">{clientErrors.title}</p>}
             </div>
 
             <div className="flex flex-col gap-2">
               <Label>Content</Label>
               <Textarea
                 name="content"
-                placeholder="Content"
+                placeholder="Write your post..."
+                className="min-h-40"
                 onChange={(e) => handleFieldChange("content", e.target.value)}
+                required
               />
-              {errors.content && (
-                <p className="text-red-500 text-sm">{errors.content}</p>
-              )}
+              {clientErrors.content && <p className="text-red-500 text-sm">{clientErrors.content}</p>}
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Image Upload</Label>
-              <Input
-                name="file"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-              {errors.file && <p className="text-red-500 text-sm">{errors.file}</p>}
+              <Label>Image</Label>
+              <Input name="file" type="file" accept="image/*" onChange={handleFileChange} required />
+              {clientErrors.file && <p className="text-red-500 text-sm">{clientErrors.file}</p>}
             </div>
 
             {preview && (
-              <div>
-                <p className="text-sm font-semibold text-gray-600">Image Preview:</p>
+              <div >
+                <p className="text-sm font-medium text-gray-600">Image Preview:</p>
                 <div className="relative w-40 h-40 rounded-md overflow-hidden">
-                  <Image
-                    src={preview}
-                    alt="Preview"
-                    fill
-                    style={{ objectFit: "contain" }}
-                  />
+                  <Image src={preview} alt="Preview" fill style={{ objectFit: "contain" }} />
                 </div>
+              </div>
+            )}
+
+            {state?.error && (
+              <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm">
+                {state.error}
               </div>
             )}
 
