@@ -8,18 +8,16 @@ import Image from "next/image";
 import prisma from "@/app/utils/db";
 import type { BlogPost as BlogPostType } from "@prisma/client";
 
-
-
 interface PostDetailClientProps {
   post: BlogPostType;
 }
 
 export default function PostDetailClient({ post }: PostDetailClientProps) {
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") || "/"; 
+  const from = searchParams.get("from") || "/";
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-5xl mx-auto py-8 px-6 md:px4 ">
       <div className="mb-4">
         <Link
           href={from}
@@ -35,7 +33,10 @@ export default function PostDetailClient({ post }: PostDetailClientProps) {
         </h1>
         <div className="flex items-center space-x-4 text-gray-600">
           <div className="relative flex items-center space-x-2 h-10">
-            <Avatar src={post.authorImage} alt={post.authorName || "Anonymous"} />
+            <Avatar
+              src={post.authorImage}
+              alt={post.authorName || "Anonymous"}
+            />
             <p className="font-semibold">{post.authorName}</p>
           </div>
           <span className="text-sm">
@@ -48,18 +49,20 @@ export default function PostDetailClient({ post }: PostDetailClientProps) {
         </div>
       </div>
 
-      <div className="relative w-full h-96 sm:h-[400px] mb-10 rounded-xl overflow-hidden shadow-lg">
-        <Image
-          src={post.imageUrl}
-          alt={post.title}
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
+      <div className="rounded-xl shadow-xl  bg-gray-100 overflow-hidden">
+        <div className="relative w-full h-96 sm:h-[400px] mb-10 rounded-xl overflow-hidden shadow-lg">
+          <Image
+            src={post.imageUrl}
+            alt={post.title}
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
 
-      <div className="max-w-full text-gray-800">
-        <p>{post.content}</p>
+        <div className="max-w-full text-gray-800 p-4  ">
+          <p>{post.content}</p>
+        </div>
       </div>
     </div>
   );

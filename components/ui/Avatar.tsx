@@ -16,6 +16,7 @@ export function Avatar({ src, alt }: AvatarProps) {
       src={imgSrc || "/userAvatar.jpg"}
       alt={alt}
       fill
+       sizes="40px"
       className="object-cover overflow-hidden rounded-[50%]"
       onError={() => setImgSrc("/userAvatar.jpg")}
     />

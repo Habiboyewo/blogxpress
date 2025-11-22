@@ -1,9 +1,24 @@
-"use client"
+
+"use client";
+
 import { useFormStatus } from "react-dom";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
-export function Submitbutton() {
+type Props = {
+  disabled?: boolean;
+};
+
+export function Submitbutton({ disabled }: Props = {}) {
   const { pending } = useFormStatus();
+  const isDisabled = disabled || pending;
 
-  return <Button className="w-[100%] md:w-[70%] mx-auto mt-2" type="submit" disabled={pending}>{pending ? "submitting" : "Submit"}</Button>
+  return (
+    <Button
+      type="submit"
+      disabled={isDisabled}
+      className="mt-6 w-full py-3 text-base font-semibold"
+    >
+      {pending ? "Publishing…" : "Publish Post"}
+    </Button>
+  );
 }

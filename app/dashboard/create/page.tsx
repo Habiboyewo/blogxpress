@@ -19,21 +19,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
 
 type FormField = "title" | "content" | "file";
-
-
-type ActionState = {
-  success?: boolean;
-  error?: string;
-};
+type ActionState = { success?: boolean; error?: string };
 
 const formSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters."),
-  content: z.string().min(10, "Content must be at least 10 characters."),
+  title: z
+    .string()
+    .trim()
+    .min(3, "Title must be at least 3 characters.")
+    .max(100, "Title too long — keep it under 100 characters."),
+
+  content: z.string().trim().min(10, "Content must be at least 10 characters."),
+
   file: z
     .instanceof(File)
     .refine((f) => f.size > 0, "Image is required.")
-    .refine((f) => ["image/jpeg", "image/png", "image/webp"].includes(f.type), "Only JPG, PNG, WebP allowed.")
-    .refine((f) => f.size <= 5 * 1024 * 1024, "Max 5MB"),
+    .refine(
+      (f) => ["image/jpeg", "image/png", "image/webp"].includes(f.type),
+      "Only JPG, PNG, or WebP allowed."
+    )
+    .refine((f) => f.size <= 5 * 1024 * 1024, "Max image size is 5MB"),
 });
 
 export default function CreateRoute() {
@@ -47,7 +51,6 @@ export default function CreateRoute() {
 
   const [state, formAction] = useActionState<ActionState, FormData>(handleSubmission, {});
 
-
   useEffect(() => {
     if (state?.success) {
       router.push("/dashboard");
@@ -55,13 +58,17 @@ export default function CreateRoute() {
     }
   }, [state, router]);
 
+
   const handleFieldChange = (field: "title" | "content", value: string) => {
     try {
       formSchema.shape[field].parse(value);
-      setClientErrors(prev => ({ ...prev, [field]: undefined }));
+      setClientErrors((prev) => ({ ...prev, [field]: undefined }));
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setClientErrors(prev => ({ ...prev, [field]: err.issues[0].message }));
+        setClientErrors((prev) => ({
+          ...prev,
+          [field]: err.issues[0].message,
+        }));
       }
     }
   };
@@ -70,7 +77,7 @@ export default function CreateRoute() {
     const file = e.target.files?.[0];
     if (!file) {
       setPreview(null);
-      setClientErrors(prev => ({ ...prev, file: "Image is required." }));
+      setClientErrors((prev) => ({ ...prev, file: "Image is required." }));
       return;
     }
 
@@ -80,16 +87,22 @@ export default function CreateRoute() {
 
     try {
       formSchema.shape.file.parse(file);
-      setClientErrors(prev => ({ ...prev, file: undefined }));
+      setClientErrors((prev) => ({ ...prev, file: undefined }));
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setClientErrors(prev => ({ ...prev, file: err.issues[0].message }));
+        setClientErrors((prev) => ({ ...prev, file: err.issues[0].message }));
       }
     }
   };
 
+  const isFormValid =
+    !clientErrors.title &&
+    !clientErrors.content &&
+    !clientErrors.file &&
+    preview !== null;
+
   return (
-    <div className="py-16">
+    <div className="py-12 md:py-16 px-4 md:px-0">
       <Card className="max-w-xl mx-auto">
         <CardHeader>
           <CardTitle>Create Post</CardTitle>
@@ -97,47 +110,69 @@ export default function CreateRoute() {
         </CardHeader>
         <CardContent>
           <form action={formAction} className="flex flex-col gap-6">
-          
+            {/* Title */}
             <div className="flex flex-col gap-2">
-              <Label>Title</Label>
-              <Input name="title" type="text" placeholder="Enter title" onChange={(e) => handleFieldChange("title", e.target.value)} required />
-              {clientErrors.title && <p className="text-red-500 text-sm">{clientErrors.title}</p>}
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                name="title"
+                type="text"
+                placeholder="Your Post title..."
+                onChange={(e) => handleFieldChange("title", e.target.value)}
+                required
+              />
+              {clientErrors.title && (
+                <p className="text-sm text-red-600">{clientErrors.title}</p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Content</Label>
+              <Label htmlFor="content">Content</Label>
               <Textarea
+                id="content"
                 name="content"
                 placeholder="Write your post..."
-                className="min-h-40"
+                className="min-h-48 resize-none"
                 onChange={(e) => handleFieldChange("content", e.target.value)}
                 required
               />
-              {clientErrors.content && <p className="text-red-500 text-sm">{clientErrors.content}</p>}
+              {clientErrors.content && (
+                <p className="text-sm text-red-600">{clientErrors.content}</p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Image</Label>
-              <Input name="file" type="file" accept="image/*" onChange={handleFileChange} required />
-              {clientErrors.file && <p className="text-red-500 text-sm">{clientErrors.file}</p>}
+              <Label htmlFor="file">Cover Image</Label>
+              <Input
+                id="file"
+                name="file"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                required
+              />
+              {clientErrors.file && (
+                <p className="text-sm text-red-600">{clientErrors.file}</p>
+              )}
             </div>
 
             {preview && (
-              <div >
-                <p className="text-sm font-medium text-gray-600">Image Preview:</p>
-                <div className="relative w-40 h-40 rounded-md overflow-hidden">
-                  <Image src={preview} alt="Preview" fill style={{ objectFit: "contain" }} />
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-600">Preview:</p>
+                <div className="relative w-full h-64 rounded-lg overflow-hidden border">
+                  <Image src={preview} alt="Preview" fill className="object-contain" />
                 </div>
               </div>
             )}
 
-            {state?.error && (
-              <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm">
-                {state.error}
+            {state?.error && isFormValid && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <p className="font-medium">Something went wrong</p>
+                <p className="mt-1">{state.error}</p>
               </div>
             )}
 
-            <Submitbutton />
+            <Submitbutton disabled={!isFormValid} />
           </form>
         </CardContent>
       </Card>
