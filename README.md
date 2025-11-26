@@ -85,11 +85,10 @@ This project is ready for one‑click deployment on **Vercel**:
 Pull requests and feature suggestions are welcome! Feel free to open an issue.
 
 ---
-
 ## Contact
 
 For questions or collaboration, reach out:
 
 - **GitHub:** Habiboyewo
 - **Mail:** Habiboyewo98@gmail.com
-- **Project Repository:** [https://github.com/Habiboyewo/blogxpress](https://github.com/Habiboyewo/blogxpress)
+- **Project Repository:** [https://github.com/Habiboyewo/blogxpress]
