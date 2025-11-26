@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BlogXpress
 
-## Getting Started
+BlogXpress A fast, clean, and fully functional personal blog built with Next.js 15, Prisma, Kinde Authentication, and a clean, responsive UI powered by TailwindCSS and shadcn/ui. It allows authenticated users to create, manage, and publish blog articles with pagination, rich content, and a dashboard experience.
 
-First, run the development server:
+---
+
+**Features**
+
+- Secure login and registration via Kinde Auth.
+- Protected dashboard routes.
+- Create rich blog posts with title, content, and cover image.
+- Server‑side pagination for user articles.
+- SEO‑friendly URL structure.
+- Responsive design using TailwindCSS.
+- Reusable components including cards, buttons, forms, and pagination controls.
+
+**Database Layer**
+
+- Prisma ORM connected to a PostgreSQL (Neon) database
+
+- Typed data models and efficient queries.
+
+**Deployment**
+
+- Fully deployed on Vercel with optimized builds.
+- Image optimization with remote patterns.
+
+---
+
+## Tech Stack
+
+| Layer          | Technology                          |
+| -------------- | ----------------------------------- |
+| Framework      | Next.js 15 (App Router)             |
+| Language       | TypeScript                          |
+| Styling        | TailwindCSS + shadcn/ui             |
+| Authentication | Kinde                               |
+| Database       | PostgreSQL on **Neon** (serverless) |
+| ORM            | Prisma                              |
+| Deployment     | Vercel                              |
+| Image Hosting  | Cloudinary / Direct upload          |
+
+
+## Environment Variables (.env.local)
+
+```env
+DATABASE_URL="postgresql://..."
+
+KINDE_CLIENT_ID=
+KINDE_CLIENT_SECRET=
+KINDE_ISSUER_URL=
+KINDE_SITE_URL=
+KINDE_POST_LOGIN_REDIRECT_URL=
+KINDE_POST_LOGOUT_REDIRECT_URL=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+DATABASE_URL=
+---
+
+##Running Locally
 
 ```bash
+git clone https://github.com/Habiboyewo/blogxpress
+cd blogxpress
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Visit:http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project is ready for one‑click deployment on **Vercel**:
 
-## Learn More
+- Automatic builds from the `main` branch
+- Environment variables handled through Vercel dashboard
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+ project is licensed for personal and educational use. You may modify and extend it for your own projects.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+Pull requests and feature suggestions are welcome! Feel free to open an issue.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contact
+
+For questions or collaboration, reach out:
+
+- **GitHub:** Habiboyewo
+- **Mail:** Habiboyewo98@gmail.com
+- **Project Repository:** [https://github.com/Habiboyewo/blogxpress](https://github.com/Habiboyewo/blogxpress)

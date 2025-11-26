@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/Avatar";
 import Image from "next/image";
 import prisma from "@/app/utils/db";
+import { getAuthorAvatar } from "@/app/utils/avatar";   // ← ONLY THIS LINE ADDED
 import type { BlogPost as BlogPostType } from "@prisma/client";
 
 interface PostDetailClientProps {
@@ -15,6 +16,8 @@ interface PostDetailClientProps {
 export default function PostDetailClient({ post }: PostDetailClientProps) {
   const searchParams = useSearchParams();
   const from = searchParams.get("from") || "/";
+
+  const authorAvatar = getAuthorAvatar(post.authorImage as string);
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-6 md:px4 ">
@@ -33,10 +36,9 @@ export default function PostDetailClient({ post }: PostDetailClientProps) {
         </h1>
         <div className="flex items-center space-x-4 text-gray-600">
           <div className="relative flex items-center space-x-2 h-10">
-            <Avatar
-              src={post.authorImage}
-              alt={post.authorName || "Anonymous"}
-            />
+            <div className="relative size-8 rounded-full overflow-hidden flex-shrink-0">
+              <Avatar src={authorAvatar} alt={post.authorName} />
+            </div>
             <p className="font-semibold">{post.authorName}</p>
           </div>
           <span className="text-sm">
